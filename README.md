@@ -1,19 +1,11 @@
 # mars-rover
 
-## Project setup
-```
-npm install
-```
+Tech test solution. It simulates sending instructions to move a rover in Mars, validating the movements so the rover doesn't exit a predefined area.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Instructions
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Just clone the repo and then
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+```
+npm run start
+```
