@@ -28,15 +28,15 @@
         :style="{ height: roverHeight / 2 + 'px' }"
       />
     </div>
+    <div
+      class="grid"
+      :style="{
+        'background-size': roverWidth + 'px ' + roverHeight + 'px',
+        width: displayAreaWidth + 'px',
+        height: displayAreaHeight + 'px',
+      }"
+    ></div>
   </div>
-  <div
-    class="grid"
-    :style="{
-      'background-size': roverHeight + 'px',
-      width: displayAreaWidth,
-      height: displayAreaHeight,
-    }"
-  ></div>
 </template>
 
 <script>
@@ -109,8 +109,10 @@ export default {
   margin: auto;
 }
 .grid {
+  /* https://stackoverflow.com/questions/3540194/how-to-make-a-grid-like-graph-paper-grid-with-just-css */
   position: absolute;
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoBAMAAAB+0KVeAAAAHlBMVEUAAABkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGSH0mEbAAAACnRSTlMAzDPDPPPYnGMw2CgMzQAAAChJREFUKM9jgAPOAgZMwGIwKkhXQSUY0BCCMxkEYUAsEM4cjI4fwYIAf2QMNbUsZjcAAAAASUVORK5CYII=");
+  background-image: linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
 }
 .rover {
   box-sizing: border-box;
