@@ -1,73 +1,118 @@
 <template>
   <div class="inputs-container">
-    <div>INPUTS</div>
+    <!-- AREA INPUT -->
     <div class="inputs-group">
-      <div>DEFINE AREA</div>
-      <label for="">Enter square width:</label>
-      <input
-        type="number"
-        min="1"
-        v-model="square.maxX"
-        @keydown="numberKeydown($event)"
-      />
-      <label>Enter square height:</label>
-      <input
-        type="number"
-        min="1"
-        v-model="square.maxY"
-        @keydown="numberKeydown($event)"
-      />
-      <button v-show="square.maxX > 0 && square.maxY > 0">Done</button>
-    </div>
-    <div class="inputs-group">
-      <div>DEFINE INITIAL ROVER POSITION</div>
-      <label for="">Enter x (horizontal) position:</label>
-      <input
-        type="number"
-        min="0"
-        v-model="inputPosition.x"
-        @keydown="numberKeydown($event)"
-      />
-      <label>Enter y (vertical) position:</label>
-      <input
-        type="number"
-        min="0"
-        v-model="inputPosition.y"
-        @keydown="numberKeydown($event)"
-      />
-      <label>Enter initial rover orientation (N, E, S or W)</label>
-      <input
-        type="text"
-        :value="inputOrientation"
-        maxlength="1"
-        @input="inputOrientation = $event.target.value.toUpperCase()"
-        @keydown="orientationKeydown($event)"
-      />
+      <h3 class="inputs-group-header" v-if="step === 0">DEFINE AREA</h3>
+      <h3 class="inputs-group-header" v-else>AREA</h3>
+      <div class="inputs-column" v-if="step === 0">
+        <p>
+          (Optimal sizes for visualization: between 4 and 40, and equal or
+          similar width and height)
+        </p>
+        <label for="">Enter area width:</label>
+        <input
+          class="input-numeric"
+          type="number"
+          min="1"
+          v-model.number="square.maxX"
+          @keydown="numberKeydown($event)"
+        />
+        <label>Enter area height:</label>
+        <input
+          class="input-numeric"
+          type="number"
+          min="1"
+          v-model.number="square.maxY"
+          @keydown="numberKeydown($event)"
+        />
+      </div>
+      <div v-else>
+        <p>Area: {{ square.maxX }} x {{ square.maxY }}</p>
+      </div>
       <button
         v-show="
-          inputPosition.x <= square.maxX &&
-          inputPosition.x >= 0 &&
-          inputPosition.y <= square.maxY &&
-          inputPosition.y >= 0 &&
-          inputOrientation !== ''
+          square.maxX > 0 &&
+          square.maxX !== '' &&
+          square.maxY > 0 &&
+          square.maxY !== '' &&
+          step === 0
         "
+        @click="sendSquare"
       >
         Done
       </button>
     </div>
-    <div class="inputs-group">
-      <div>ENTER SEQUENCE OF MOVEMENTS</div>
+
+    <!-- POSITION INPUT -->
+    <div class="inputs-group" v-if="step > 0">
+      <h3 class="inputs-group-header" v-if="step === 1">
+        DEFINE INITIAL ROVER POSITION
+      </h3>
+      <h3 class="inputs-group-header" v-else>INITIAL ROVER POSITION</h3>
+      <div class="inputs-column" v-if="step === 1">
+        <label for="">Enter x (horizontal) position:</label>
+        <input
+          class="input-numeric"
+          type="number"
+          min="0"
+          v-model.number="inputPosition.x"
+          @keydown="numberKeydown($event)"
+        />
+        <label>Enter y (vertical) position:</label>
+        <input
+          class="input-numeric"
+          type="number"
+          min="0"
+          v-model.number="inputPosition.y"
+          @keydown="numberKeydown($event)"
+        />
+        <label>Enter initial rover orientation (N, E, S or W):</label>
+        <input
+          class="input-orientation"
+          type="text"
+          :value="inputOrientation"
+          maxlength="1"
+          @input="inputOrientation = $event.target.value.toUpperCase()"
+          @keydown="orientationKeydown($event)"
+        />
+      </div>
+      <div v-else>
+        <p>Initial position: ({{ inputPosition.x }}, {{ inputPosition.y }})</p>
+        <p>Initial orientation: {{ inputOrientation }}</p>
+      </div>
+      <button
+        v-show="
+          inputPosition.x < square.maxX &&
+          inputPosition.x >= 0 &&
+          inputPosition.x !== '' &&
+          inputPosition.y < square.maxY &&
+          inputPosition.y >= 0 &&
+          inputPosition.x !== '' &&
+          inputOrientation !== '' &&
+          step === 1
+        "
+        @click="sendPosition"
+      >
+        Done
+      </button>
+    </div>
+
+    <!-- SEQUENCE INPUT -->
+    <div class="inputs-group" v-if="step > 1">
+      <h3 class="inputs-group-header">ENTER SEQUENCE OF MOVEMENTS</h3>
       <label
         >Valid orders: A (move forward), L (turn left), R (turn right)</label
       >
       <input
+        class="input-sequence"
         type="text"
         :value="sequence"
         @input="sequence = $event.target.value.toUpperCase()"
         @keydown="sequenceKeydown($event)"
       />
-      <button v-if="sequence !== ''">Run</button>
+      <button v-if="sequence !== ''" @click="sendSequence">Run</button>
     </div>
+    <button class="reset" @click="reset" v-if="step > 0">Reset App</button>
   </div>
 </template>
 
@@ -76,6 +121,7 @@ export default {
   name: "Inputs",
   data() {
     return {
+      step: 0,
       square: {
         maxX: null,
         maxY: null,
@@ -115,18 +161,75 @@ export default {
         e.preventDefault();
       }
     },
+    sendSquare() {
+      this.$emit("setSquare", this.square);
+      this.step = 1;
+    },
+    sendPosition() {
+      this.$emit("setPosition", this.inputPosition, this.inputOrientation);
+      this.step = 2;
+    },
+    sendSequence() {
+      this.$emit("runSequence", this.sequence);
+      this.step = 3;
+    },
+    reset() {
+      this.$emit("reset");
+      this.step = 0;
+      this.square.maxX = null;
+      this.square.maxY = null;
+      this.inputPosition.x = null;
+      this.inputPosition.y = null;
+      this.inputOrientation = "";
+      this.sequence = "";
+    },
   },
 };
 </script>
 
 <style scoped>
-.inputs-container {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
+h3 {
+  margin-bottom: 1rem;
 }
-.inputs-group {
+p {
+  margin: 0 0 1rem;
+}
+button {
+  height: 1.6rem;
+  margin-top: 0.6rem;
+  cursor: pointer;
+}
+.inputs-container {
+  height: calc(100vh - 64px);
+  max-width: 460px;
   display: flex;
   flex-direction: column;
+  padding: 2rem;
+  gap: 2rem;
+  background-color: #39719e;
+  color: #fff;
+}
+.inputs-group,
+.inputs-column {
+  display: flex;
+  flex-direction: column;
+}
+.inputs-group-header {
+  font-weight: 600;
+}
+.input-numeric {
+  width: 8ch;
+}
+.input-orientation {
+  width: 2ch;
+}
+.input-sequence {
+  width: calc(100% - 6px);
+}
+.reset {
+  margin-top: 4rem;
+  background-color: #ff000080;
+  border: 2px solid red;
+  color: white;
 }
 </style>
