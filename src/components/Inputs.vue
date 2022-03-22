@@ -5,10 +5,7 @@
       <h3 class="inputs-group-header" v-if="step === 0">DEFINE AREA</h3>
       <h3 class="inputs-group-header" v-else>AREA</h3>
       <div class="inputs-column" v-if="step === 0">
-        <p>
-          (Optimal sizes for visualization: between 4 and 40, and equal or
-          similar width and height)
-        </p>
+        <p>(Optimal values: between 4 and 40)</p>
         <label for="">Enter area width:</label>
         <input
           class="input-numeric"
@@ -110,7 +107,22 @@
         @input="sequence = $event.target.value.toUpperCase()"
         @keydown="sequenceKeydown($event)"
       />
-      <button v-if="sequence !== ''" @click="sendSequence">Run</button>
+      <button
+        v-if="
+          sequence !== '' &&
+          (sequenceIsCorrect === true || sequenceIsCorrect === null)
+        "
+        @click="sendSequence"
+      >
+        Run
+      </button>
+      <button
+        v-if="sequenceIsCorrect === false"
+        class="clear"
+        @click="clearError"
+      >
+        Restart Rover
+      </button>
     </div>
     <button class="reset" @click="reset" v-if="step > 0">Reset App</button>
   </div>
@@ -119,6 +131,12 @@
 <script>
 export default {
   name: "Inputs",
+  props: {
+    sequenceIsCorrect: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
       step: 0,
@@ -171,6 +189,10 @@ export default {
     sendSequence() {
       this.$emit("runSequence", this.sequence);
       this.step = 3;
+    },
+    clearError() {
+      this.$emit("restartRover");
+      this.sequence = "";
     },
     reset() {
       this.$emit("reset");
@@ -225,10 +247,13 @@ button {
 .input-sequence {
   width: calc(100% - 6px);
 }
-.reset {
-  margin-top: 4rem;
+.reset,
+.clear {
   background-color: #ff000080;
   border: 2px solid red;
   color: white;
+}
+.reset {
+  margin-top: 4rem;
 }
 </style>

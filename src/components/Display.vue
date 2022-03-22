@@ -1,41 +1,50 @@
 <template>
-  <div
-    class="display-area"
-    v-if="displayAreaHeight && displayAreaWidth"
-    :style="{
-      'min-width': displayAreaWidth + 'px',
-      'min-height': displayAreaHeight + 'px',
-    }"
-  >
+  <div class="display-container">
     <div
-      class="rover"
-      :class="{
-        round: roverWidth / roverHeight === 1,
-        green: sequenceIsCorrect === true || sequenceIsCorrect === null,
-        red: sequenceIsCorrect === false,
-      }"
+      class="display-area"
+      v-if="displayAreaHeight && displayAreaWidth"
       :style="{
-        width: roverWidth + 'px',
-        height: roverHeight + 'px',
-        position: 'absolute',
-        top: displayAreaHeight - roverHeight + 'px',
+        'min-width': displayAreaWidth + 'px',
+        'min-height': displayAreaHeight + 'px',
       }"
     >
-      <img
-        class="arrow"
-        src="@/assets/arrow.svg"
-        alt=""
-        :style="{ height: roverHeight / 2 + 'px' }"
-      />
+      <div
+        class="rover"
+        :class="{
+          hidden: showRover === false,
+          green: sequenceIsCorrect === true || sequenceIsCorrect === null,
+          red: sequenceIsCorrect === false,
+        }"
+        :style="{
+          width: roverWidth + 'px',
+          height: roverHeight + 'px',
+          position: 'absolute',
+          top: displayAreaHeight - roverHeight + 'px',
+        }"
+      >
+        <img
+          class="arrow"
+          src="@/assets/arrow.svg"
+          alt=""
+          :style="{ height: roverHeight / 2 + 'px' }"
+        />
+      </div>
+      <div
+        class="grid"
+        :style="{
+          'background-size': roverWidth + 'px ' + roverHeight + 'px',
+          width: displayAreaWidth + 'px',
+          height: displayAreaHeight + 'px',
+        }"
+      ></div>
     </div>
     <div
-      class="grid"
-      :style="{
-        'background-size': roverWidth + 'px ' + roverHeight + 'px',
-        width: displayAreaWidth + 'px',
-        height: displayAreaHeight + 'px',
-      }"
-    ></div>
+      class="messages"
+      :class="message.class"
+      :style="{ width: displayAreaWidth + 'px' }"
+    >
+      {{ message.text }}
+    </div>
   </div>
 </template>
 
@@ -50,6 +59,8 @@ export default {
     roverPositionY: { type: Number },
     roverOrientation: { type: String },
     sequenceIsCorrect: { type: Boolean },
+    showRover: { type: Boolean, default: false },
+    message: { type: Object },
   },
   computed: {
     displayAreaWidth() {
@@ -108,6 +119,11 @@ export default {
 </script>
 
 <style scoped>
+.display-container {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
 .display-area {
   position: relative;
   padding: 0;
@@ -125,8 +141,6 @@ export default {
   box-sizing: border-box;
   background: transparent;
   border: 2px solid black;
-}
-.round {
   border-radius: 100%;
 }
 .green {
@@ -142,5 +156,26 @@ export default {
   position: relative;
   top: 25%;
   margin: auto;
+}
+.hidden {
+  display: none;
+}
+.messages {
+  box-sizing: border-box;
+  height: 2rem;
+  margin: 0.1rem auto;
+  padding: 0 1rem;
+}
+.info {
+  background-color: hsla(207, 47%, 42%, 0.623);
+}
+.success {
+  background-color: hsla(150, 47%, 42%, 0.623);
+}
+.error {
+  background-color: hsla(0, 47%, 42%, 0.623);
+}
+.blank {
+  background-color: white;
 }
 </style>

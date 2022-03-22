@@ -4,7 +4,8 @@
       @setSquare="setSquare"
       @setPosition="setPosition"
       @runSequence="runSequence"
-      @reset="reset"
+      @restartRover="restartRover"
+      :sequenceIsCorrect="sequenceIsCorrect"
     />
     <Display
       :areaHeight="square.maxY"
@@ -13,6 +14,8 @@
       :roverPositionY="rover.y"
       :roverOrientation="rover.orientation"
       :sequenceIsCorrect="sequenceIsCorrect"
+      :showRover="showRover"
+      :message="message"
     />
   </div>
 </template>
@@ -89,11 +92,16 @@ export default {
           }
         },
         tweet() {
-          console.log(
-            `Rover says: "Hello, Earth! I'm in Mars, at x=${this.x}, y=${this.y}, orientated to ${this.orientation}"
-            `
-          );
+          self.message = {
+            class: "success",
+            text: `Rover says: "Hello, Earth! I'm in Mars, at x=${this.x}, y=${this.y}, orientated to ${this.orientation}"`,
+          };
         },
+      },
+      showRover: false,
+      message: {
+        class: "blank",
+        text: "",
       },
     };
   },
@@ -107,6 +115,7 @@ export default {
       this.orientate(receivedOrientation);
     },
     runSequence(receivedSequence) {
+      this.message = { class: "info", text: "" };
       this.moveRover(receivedSequence);
     },
     position(initialPosition) {
@@ -116,23 +125,33 @@ export default {
       this.startingPosition.y = initialPosition.y;
       return;
     },
-    orientate(initialOrientation) {
+    async orientate(initialOrientation) {
       const input = initialOrientation.toUpperCase();
       let orientationIndex = this.cardinalDirections.findIndex(
         (direction) => direction === input
       );
       this.rover.orientation = this.cardinalDirections[orientationIndex];
       this.startingOrientation = this.cardinalDirections[orientationIndex];
+      await this.delay(900);
+      if (this.sequenceIsCorrect !== false) this.rover.tweet();
+      this.showRover = true;
       return;
     },
     async moveRover(sequence) {
-      console.log(`...Validating sequence ${sequence}... `);
+      this.message = {
+        class: "info",
+        text: `...Validating sequence ${sequence}... `,
+      };
       const input = sequence.toUpperCase().split("");
       for (let i = 0; i < input.length; i++) {
         // Using a traditional for loop because so we can use await and break (not allowed in forEach())
         await this.delay(500);
         if (input[i] === "A") this.rover.advance();
         if (input[i] === "L" || "R") this.rover.turn(input[i]);
+        this.message = {
+          class: "info",
+          text: `...Validating sequence ${sequence}... (${input[i]}) `,
+        };
         this.checkPosition(i);
         if (this.rover.positionIsValid === false) {
           this.position(this.startingPosition);
@@ -140,8 +159,10 @@ export default {
           break;
         }
       }
-      if (this.rover.positionIsValid) this.sequenceIsCorrect = true;
-      this.rover.tweet();
+      if (this.rover.positionIsValid) {
+        this.sequenceIsCorrect = true;
+        this.rover.tweet();
+      }
     },
     checkPosition(position) {
       if (
@@ -151,11 +172,12 @@ export default {
           this.rover.y < 0 ||
           this.rover.y >= this.square.maxY)
       ) {
-        console.error(
-          `Sequence could not be executed, order #${
+        this.message = {
+          class: "error",
+          text: `Sequence could not be executed, order #${
             position + 1
-          } would put the rover out of the square`
-        );
+          } would put the rover out of the square!`,
+        };
         this.rover.positionIsValid = false;
         this.sequenceIsCorrect = false;
         return;
@@ -163,6 +185,11 @@ export default {
     },
     delay(time) {
       return new Promise((resolve) => setTimeout(resolve, time));
+    },
+    restartRover() {
+      this.sequenceIsCorrect = null;
+      this.rover.positionIsValid = true;
+      this.rover.tweet();
     },
     reset() {
       this.sequenceIsCorrect = null;
@@ -175,6 +202,10 @@ export default {
       this.rover.y = null;
       this.rover.orientation = null;
       this.rover.positionIsValid = true;
+      this.message = {
+        class: "blank",
+        text: "",
+      };
     },
   },
 };
