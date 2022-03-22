@@ -110,86 +110,34 @@ export default {
       this.moveRover(receivedSequence);
     },
     position(initialPosition) {
-      if (
-        typeof initialPosition.x !== "number" ||
-        typeof initialPosition.y !== "number"
-      ) {
-        console.error("Type error: Enter X and Y coordiates as numbers");
-        return;
-      }
-      if (
-        initialPosition.x >= this.square.MaxX ||
-        initialPosition.x < 0 ||
-        initialPosition.y >= this.square.MaxY ||
-        initialPosition.y < 0
-      ) {
-        console.error("Error: Rover must be positioned inside the square");
-        return;
-      }
       this.rover.x = initialPosition.x;
       this.rover.y = initialPosition.y;
       this.startingPosition.x = initialPosition.x;
       this.startingPosition.y = initialPosition.y;
-      console.log(
-        ` Rover initial coordinates: x = ${initialPosition.x}, y = ${initialPosition.y}`
-      );
       return;
     },
     orientate(initialOrientation) {
-      if (typeof initialOrientation !== "string") {
-        console.error(
-          "Wrong input type, please enter a valid string (N, E, S or W)"
-        );
-        return;
-      }
       const input = initialOrientation.toUpperCase();
       let orientationIndex = this.cardinalDirections.findIndex(
         (direction) => direction === input
       );
-      if (orientationIndex === -1) {
-        console.error(
-          "Initial orientation must be a cardinal direction: N, E, S or W"
-        );
-        return;
-      }
       this.rover.orientation = this.cardinalDirections[orientationIndex];
       this.startingOrientation = this.cardinalDirections[orientationIndex];
-      console.log(
-        `Initial orientation set to ${this.cardinalDirections[orientationIndex]} `
-      );
       return;
     },
     async moveRover(sequence) {
-      if (typeof sequence !== "string") {
-        console.error(
-          "Wrong input type, please enter a valid string (A, L or R)"
-        );
-        return;
-      }
-      let inputIsValid = true;
+      console.log(`...Validating sequence ${sequence}... `);
       const input = sequence.toUpperCase().split("");
-      input.forEach((order) => {
-        if (!this.validOrders.includes(order)) {
-          console.error(
-            `Your sequence ${sequence} includes incorrect orders. Valid orders are only: A (advance), L (turn left), R(turn right) `
-          );
-          inputIsValid = false;
-          return;
-        }
-      });
-      if (inputIsValid) {
-        console.log(`...Validating sequence ${sequence}... `);
-        for (let i = 0; i < input.length; i++) {
-          // Using a traditional for loop because so we can use await and break (not allowed in forEach())
-          await this.delay(500);
-          if (input[i] === "A") this.rover.advance();
-          if (input[i] === "L" || "R") this.rover.turn(input[i]);
-          this.checkPosition(i);
-          if (this.rover.positionIsValid === false) {
-            this.position(this.startingPosition);
-            this.orientate(this.startingOrientation);
-            break;
-          }
+      for (let i = 0; i < input.length; i++) {
+        // Using a traditional for loop because so we can use await and break (not allowed in forEach())
+        await this.delay(500);
+        if (input[i] === "A") this.rover.advance();
+        if (input[i] === "L" || "R") this.rover.turn(input[i]);
+        this.checkPosition(i);
+        if (this.rover.positionIsValid === false) {
+          this.position(this.startingPosition);
+          this.orientate(this.startingOrientation);
+          break;
         }
       }
       if (this.rover.positionIsValid) this.sequenceIsCorrect = true;
