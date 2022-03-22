@@ -174,6 +174,7 @@ export default {
       this.rover.x = null;
       this.rover.y = null;
       this.rover.orientation = null;
+      this.rover.positionIsValid = true;
     },
   },
 };
