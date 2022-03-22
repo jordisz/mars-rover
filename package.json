@@ -7,7 +7,9 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@fontsource/titillium-web": "^4.5.3",
     "core-js": "^3.6.5",
+    "gsap": "^3.9.1",
     "vue": "^3.0.0"
   },
   "devDependencies": {
