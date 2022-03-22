@@ -1,11 +1,25 @@
 <template>
   <div class="container">
-    <Inputs />
-    <Display />
+    <Inputs
+      @setSquare="setSquare"
+      @setPosition="setPosition"
+      @runSequence="runSequence"
+      @reset="reset"
+    />
+    <Display
+      :areaHeight="square.maxY"
+      :areaWidth="square.maxX"
+      :roverPositionX="rover.x"
+      :roverPositionY="rover.y"
+      :roverOrientation="rover.orientation"
+      :sequenceIsCorrect="sequenceIsCorrect"
+    />
   </div>
 </template>
 
 <script>
+import "@fontsource/titillium-web/400.css";
+import "@fontsource/titillium-web/600.css";
 import Inputs from "@/components/Inputs.vue";
 import Display from "@/components/Display.vue";
 
@@ -16,16 +30,23 @@ export default {
     Display,
   },
   data() {
+    let self = this;
     return {
       cardinalDirections: ["N", "E", "S", "W"],
       validOrders: ["A", "L", "R"],
+      sequenceIsCorrect: null,
       square: {
         maxX: null,
         maxY: null,
       },
+      startingPosition: {
+        x: null,
+        y: null,
+      },
+      startingOrientation: "",
       rover: {
-        x: 0,
-        y: 0,
+        x: null,
+        y: null,
         orientation: null,
         positionIsValid: true,
         advance() {
@@ -45,25 +66,25 @@ export default {
           }
         },
         turn(direction) {
-          const indexOfCurrentOrientation = cardinalDirections.findIndex(
-            (d) => d === rover.orientation
+          const indexOfCurrentOrientation = self.cardinalDirections.findIndex(
+            (d) => d === this.orientation
           );
           if (direction === "L" && indexOfCurrentOrientation === 0) {
-            this.orientation = cardinalDirections[3];
+            this.orientation = self.cardinalDirections[3];
             return;
           }
           if (direction === "L" && indexOfCurrentOrientation > 0) {
             this.orientation =
-              cardinalDirections[indexOfCurrentOrientation - 1];
+              self.cardinalDirections[indexOfCurrentOrientation - 1];
             return;
           }
           if (direction === "R" && indexOfCurrentOrientation === 3) {
-            this.orientation = cardinalDirections[0];
+            this.orientation = self.cardinalDirections[0];
             return;
           }
           if (direction === "R" && indexOfCurrentOrientation < 3) {
             this.orientation =
-              cardinalDirections[indexOfCurrentOrientation + 1];
+              self.cardinalDirections[indexOfCurrentOrientation + 1];
             return;
           }
         },
@@ -77,6 +98,17 @@ export default {
     };
   },
   methods: {
+    setSquare(received) {
+      this.square.maxX = received.maxX;
+      this.square.maxY = received.maxY;
+    },
+    setPosition(receivedPosition, receivedOrientation) {
+      this.position(receivedPosition);
+      this.orientate(receivedOrientation);
+    },
+    runSequence(receivedSequence) {
+      this.moveRover(receivedSequence);
+    },
     position(initialPosition) {
       if (
         typeof initialPosition.x !== "number" ||
@@ -86,16 +118,18 @@ export default {
         return;
       }
       if (
-        initialPosition.x > square.MaxX ||
+        initialPosition.x >= this.square.MaxX ||
         initialPosition.x < 0 ||
-        initialPosition.y > square.MaxY ||
+        initialPosition.y >= this.square.MaxY ||
         initialPosition.y < 0
       ) {
         console.error("Error: Rover must be positioned inside the square");
         return;
       }
-      rover.x = initialPosition.x;
-      rover.y = initialPosition.y;
+      this.rover.x = initialPosition.x;
+      this.rover.y = initialPosition.y;
+      this.startingPosition.x = initialPosition.x;
+      this.startingPosition.y = initialPosition.y;
       console.log(
         ` Rover initial coordinates: x = ${initialPosition.x}, y = ${initialPosition.y}`
       );
@@ -109,7 +143,7 @@ export default {
         return;
       }
       const input = initialOrientation.toUpperCase();
-      let orientationIndex = cardinalDirections.findIndex(
+      let orientationIndex = this.cardinalDirections.findIndex(
         (direction) => direction === input
       );
       if (orientationIndex === -1) {
@@ -118,13 +152,14 @@ export default {
         );
         return;
       }
-      rover.orientation = cardinalDirections[orientationIndex];
+      this.rover.orientation = this.cardinalDirections[orientationIndex];
+      this.startingOrientation = this.cardinalDirections[orientationIndex];
       console.log(
-        `Initial orientation set to ${cardinalDirections[orientationIndex]} `
+        `Initial orientation set to ${this.cardinalDirections[orientationIndex]} `
       );
       return;
     },
-    moveRover(sequence) {
+    async moveRover(sequence) {
       if (typeof sequence !== "string") {
         console.error(
           "Wrong input type, please enter a valid string (A, L or R)"
@@ -134,7 +169,7 @@ export default {
       let inputIsValid = true;
       const input = sequence.toUpperCase().split("");
       input.forEach((order) => {
-        if (!validOrders.includes(order)) {
+        if (!this.validOrders.includes(order)) {
           console.error(
             `Your sequence ${sequence} includes incorrect orders. Valid orders are only: A (advance), L (turn left), R(turn right) `
           );
@@ -145,43 +180,63 @@ export default {
       if (inputIsValid) {
         console.log(`...Validating sequence ${sequence}... `);
         for (let i = 0; i < input.length; i++) {
-          // Using a traditional for loop because so we can use break (break is not allowed in forEach())
-          if (input[i] === "A") rover.advance();
-          if (input[i] === "L" || "R") rover.turn(input[i]);
-          checkPosition(i);
-          if (rover.positionIsValid === false) {
-            position(inputPosition);
-            orientate(inputOrientation);
+          // Using a traditional for loop because so we can use await and break (not allowed in forEach())
+          await this.delay(500);
+          if (input[i] === "A") this.rover.advance();
+          if (input[i] === "L" || "R") this.rover.turn(input[i]);
+          this.checkPosition(i);
+          if (this.rover.positionIsValid === false) {
+            this.position(this.startingPosition);
+            this.orientate(this.startingOrientation);
             break;
           }
         }
       }
-      console.log(rover.positionIsValid);
+      if (this.rover.positionIsValid) this.sequenceIsCorrect = true;
+      this.rover.tweet();
     },
     checkPosition(position) {
       if (
-        rover.positionIsValid &&
-        (rover.x < 0 ||
-          rover.x > square.MaxX ||
-          rover.y < 0 ||
-          rover.y > square.MaxY)
+        this.rover.positionIsValid &&
+        (this.rover.x < 0 ||
+          this.rover.x >= this.square.maxX ||
+          this.rover.y < 0 ||
+          this.rover.y >= this.square.maxY)
       ) {
         console.error(
           `Sequence could not be executed, order #${
             position + 1
           } would put the rover out of the square`
         );
-        rover.positionIsValid = false;
+        this.rover.positionIsValid = false;
+        this.sequenceIsCorrect = false;
         return;
       }
+    },
+    delay(time) {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    },
+    reset() {
+      this.sequenceIsCorrect = null;
+      this.square.maxX = null;
+      this.square.maxY = null;
+      this.startingPosition.x = null;
+      this.startingPosition.y = null;
+      this.startingOrientation = null;
+      this.rover.x = null;
+      this.rover.y = null;
+      this.rover.orientation = null;
     },
   },
 };
 </script>
 
 <style>
+body {
+  margin: 0;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Titillium Web", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -189,6 +244,3 @@ export default {
   display: flex;
 }
 </style>
-
-position(inputPosition); orientate(inputOrientation); rover.tweet();
-moveRover("RRAAAA"); rover.tweet(); };
