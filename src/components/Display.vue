@@ -53,14 +53,21 @@ export default {
   },
   computed: {
     displayAreaWidth() {
-      let quotient = parseInt(840 / this.areaWidth);
-      let n = quotient * this.areaWidth;
-      return n;
+      if (this.longestDimension === "x") {
+        let quotient = parseInt(840 / this.areaWidth);
+        let n = quotient * this.areaWidth;
+        return n;
+      } else return (this.displayAreaHeight / this.areaHeight) * this.areaWidth;
     },
     displayAreaHeight() {
-      let quotient = parseInt(840 / this.areaHeight);
-      let n = quotient * this.areaHeight;
-      return n;
+      if (this.longestDimension === "y") {
+        let quotient = parseInt(840 / this.areaHeight);
+        let n = quotient * this.areaHeight;
+        return n;
+      } else return (this.displayAreaWidth / this.areaWidth) * this.areaHeight;
+    },
+    longestDimension() {
+      return this.areaWidth >= this.areaHeight ? "x" : "y";
     },
     roverWidth() {
       return this.displayAreaWidth / this.areaWidth;
