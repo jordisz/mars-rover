@@ -157,7 +157,6 @@ export default {
         e.keyCode !== 16 &&
         e.keyCode !== 9
       ) {
-        console.log(e);
         e.preventDefault();
       }
     },
