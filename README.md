@@ -20,14 +20,14 @@ It also uses GSAP to simplify the animation syntax, and Fontsource to import the
 
 ## App operation
 
-A rover is placed in a square inside a bigger area.
-The user defines the width and height in squares of the area.
-The coordinates of the bottom left corner are (0,0).
+A rover is placed in a square inside a bigger area. <br/>
+The user defines the width and height in squares of the area. <br/>
+The coordinates of the bottom left corner are (0,0). <br/>
 
-Then the user defines the coordinates for the initial placement of the rover, and also its initial orientation.
-After the rover is in its initial position, the user can enter a series of commands (A for Advance, L and R for turn Left or Right).
-There is no fixed limit of number of input commands.
+Then the user defines the coordinates for the initial placement of the rover, and also its initial orientation. <br/>
+After the rover is in its initial position, the user can enter a series of commands (A for Advance, L and R for turn Left or Right). <br />
+There is no fixed limit of number of input commands. <br />
 
-The app validates if all the commands can be executed without exceding the area limits.
-If there is a command that places the rover outside of the area, the app shows an error message.
+The app validates if all the commands can be executed without exceding the area limits. <br/>
+If there is a command that places the rover outside of the area, the app shows an error message. <br/>
 If the entire sequence of commands can be executed, the rover moves and sends a message with its final position and orientation.
