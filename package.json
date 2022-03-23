@@ -17,5 +17,8 @@
     "@vue/cli-plugin-babel": "~4.5.15",
     "@vue/cli-service": "~4.5.15",
     "@vue/compiler-sfc": "^3.0.0"
+  },
+  "environment": {
+    "node": "16.13.1"
   }
 }
