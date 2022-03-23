@@ -5,7 +5,7 @@
       <h3 class="inputs-group-header" v-if="step === 0">DEFINE AREA</h3>
       <h3 class="inputs-group-header" v-else>AREA</h3>
       <div class="inputs-column" v-if="step === 0">
-        <p>(Optimal values: between 4 and 40)</p>
+        <p>For optimal experience, use values between 4 and 40</p>
         <label for="">Enter area width:</label>
         <input
           class="input-numeric"
@@ -47,6 +47,11 @@
       </h3>
       <h3 class="inputs-group-header" v-else>INITIAL ROVER POSITION</h3>
       <div class="inputs-column" v-if="step === 1">
+        <p>
+          Keep in mind that row and column numbering starts at 0, so the
+          uppermost row is {{ square.maxY - 1 }} and the last column is
+          {{ square.maxX - 1 }}
+        </p>
         <label for="">Enter x (horizontal) position:</label>
         <input
           class="input-numeric"

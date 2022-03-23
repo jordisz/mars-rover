@@ -5,6 +5,7 @@
       @setPosition="setPosition"
       @runSequence="runSequence"
       @restartRover="restartRover"
+      @reset="reset"
       :sequenceIsCorrect="sequenceIsCorrect"
     />
     <Display
@@ -94,7 +95,7 @@ export default {
         tweet() {
           self.message = {
             class: "success",
-            text: `Rover says: "Hello, Earth! I'm in Mars, at x=${this.x}, y=${this.y}, orientated to ${this.orientation}"`,
+            text: `Rover says: "Hello, Earth! I'm on Mars, at x=${this.x}, y=${this.y}, facing ${this.orientation}"`,
           };
         },
       },
@@ -162,6 +163,7 @@ export default {
       if (this.rover.positionIsValid) {
         this.sequenceIsCorrect = true;
         this.rover.tweet();
+        return true;
       }
     },
     checkPosition(position) {
@@ -180,7 +182,7 @@ export default {
         };
         this.rover.positionIsValid = false;
         this.sequenceIsCorrect = false;
-        return;
+        return false;
       }
     },
     delay(time) {
@@ -202,6 +204,7 @@ export default {
       this.rover.y = null;
       this.rover.orientation = null;
       this.rover.positionIsValid = true;
+      this.showRover = false;
       this.message = {
         class: "blank",
         text: "",
