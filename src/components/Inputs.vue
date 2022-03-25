@@ -1,5 +1,14 @@
 <template>
   <div class="inputs-container">
+    <div class="title-container">
+      <h1>Martian Steps</h1>
+      <h2>
+        <span class="arrow"><img src="@/assets/arrow.svg" alt="" /></span>Moving
+        a vehicle on Mars<span class="arrow reverse"
+          ><img src="@/assets/arrow.svg" alt=""
+        /></span>
+      </h2>
+    </div>
     <!-- AREA INPUT -->
     <div class="inputs-group">
       <h3 class="inputs-group-header" v-if="step === 0">DEFINE AREA</h3>
@@ -214,6 +223,29 @@ export default {
 </script>
 
 <style scoped>
+h1 {
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+}
+h2 {
+  margin: 0 0 1rem;
+  text-align: center;
+  font-size: 1.25rem;
+}
+.arrow {
+  padding: 0 0.7rem;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(148deg)
+    brightness(103%) contrast(102%);
+}
+.arrow img {
+  height: 1rem;
+  transform: rotate(90deg);
+}
+.reverse img {
+  transform: rotate(270deg);
+}
 h3 {
   margin-bottom: 1rem;
 }
@@ -230,7 +262,7 @@ button {
   max-width: 460px;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 2rem 2.5rem;
   gap: 2rem;
   background-color: #39719e;
   color: #fff;
